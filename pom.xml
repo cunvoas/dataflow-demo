@@ -1,0 +1,154 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.cunvoas</groupId>
+	<artifactId>dataflow-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<properties>
+		<!-- Compiler & sources -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+		
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-datastore -->
+        <google-cloud.version>1.102.2</google-cloud.version> <!-- 1.86.0 1.102.2-->
+        
+        <!-- GCP Dataflow ( https://cloud.google.com/dataflow/docs/guides/installing-beam-sdk  ) -->
+        <apache-beam.version>[2.19.0, 2.99)</apache-beam.version><!-- 2.16.0 -->
+        <!-- https://mvnrepository.com/artifact/com.google.cloud.dataflow/google-cloud-dataflow-java-sdk-all -->
+        <google-cloud-dataflow.version>2.5.0</google-cloud-dataflow.version><!--  2.5.0 -->
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-bigquery -->
+        <google-cloud-bigquery.version>1.106.0</google-cloud-bigquery.version><!-- 1.66.0 -->
+        
+        
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+        <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
+        <maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
+
+        <GCLOUD_PROJECT>dpsp-arbolpim</GCLOUD_PROJECT>
+        <DATAFLOW_BUCKET>gs://dpsp-arbolpim_dataflow_2</DATAFLOW_BUCKET>
+	</properties>
+	
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        
+        <!-- Runners -->
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-runners-direct-java</artifactId>
+            <version>${apache-beam.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Beam -->
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-core</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+
+        <!-- Dataflow  -->
+        <dependency>
+            <groupId>com.google.cloud.dataflow</groupId>
+            <artifactId>google-cloud-dataflow-java-sdk-all</artifactId>
+            <version>${google-cloud-dataflow.version}</version>
+            <exclusions>
+                <!-- remove unused libs for security reasons -->
+                <exclusion>
+                    <groupId>org.apache.beam</groupId>
+                    <artifactId>beam-sdks-java-io-kafka</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+         <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
+            <version>${apache-beam.version}</version>
+            <exclusions>
+                <!-- remove unused libs for security reasons -->
+                <exclusion>
+                    <groupId>com.google.cloud.bigtable</groupId>
+                    <artifactId>bigtable-client-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>grpc-google-cloud-bigtable-v2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>proto-google-cloud-bigtable-v2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>proto-google-cloud-bigtable-admin-v2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>grpc-google-cloud-bigtable-admin-v2</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.cloud</groupId>
+                    <artifactId>google-cloud-spanner</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>grpc-google-cloud-spanner-v1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>proto-google-cloud-spanner-admin-instance-v1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>grpc-google-cloud-spanner-admin-instance-v1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>grpc-google-cloud-spanner-admin-database-v1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>proto-google-cloud-spanner-v1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.api.grpc</groupId>
+                    <artifactId>proto-google-cloud-spanner-admin-database-v1</artifactId>
+                </exclusion>
+                <!-- 
+                TODO Potential trouble with mockito in final release => bad scope I think
+                <exclusion>
+                    <groupId>io.grpc</groupId>
+                    <artifactId>grpc-testing</artifactId>
+                </exclusion>
+                 -->
+            </exclusions>
+        </dependency>
+        
+        <!-- BigQuery -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-bigquery</artifactId>
+            <version>${google-cloud-bigquery.version}</version>
+        </dependency>
+        
+    </dependencies>
+	
+	
+</project>
